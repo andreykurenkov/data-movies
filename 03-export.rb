@@ -13,10 +13,11 @@ def genres_binary(id, db)
 end
 
 def ratings_breakdown(ratings)
-	ratings[0..ratings.length].to_s.split(//).map{|s| $ratings_map[s]}
+    ratings[0..ratings.length].to_s.split(//).map{|s| $ratings_map[s]} rescue nil
 end
 
 db = SQLite3::Database.new( "movies.sqlite3" )
+db.results_as_hash= true
 sql = "
 	SELECT Movies.* 
 	FROM Movies
@@ -25,13 +26,12 @@ sql = "
 
 i = 0 
 
-File.open("movies.tab", "w") do |out|
+File.open("movies.csv", "w") do |out|
 	out << [
 		'title', 'year', 'length', 'budget', 
 		'rating', 'votes', (1..10).map{|i| "r" + i.to_s}, 
 		'mpaa', $genres_of_interest
 	].flatten.join("\t") + "\n"
-
 	db.execute(sql) do |row| 
 		puts i if (i = i + 1) % 5000 == 0
 
@@ -42,6 +42,6 @@ File.open("movies.tab", "w") do |out|
 			row["budget"], 
 			row["imdb_rating"], row["imdb_votes"], ratings_breakdown(row["imdb_rating_votes"]), 
 			row["mpaa_rating"], genres_binary(row['id'], db)
-		].flatten.join("\t") + "\n" rescue nil
+		].flatten.join("\t") + "\n"
 	end
 end
