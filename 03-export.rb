@@ -26,7 +26,7 @@ sql = "
 
 i = 0 
 
-File.open("movies.csv", "w") do |out|
+File.open("movies.tsv", "w") do |out|
 	out << [
 		'title', 'year', 'length', 'budget', 
 		'rating', 'votes', (1..10).map{|i| "r" + i.to_s}, 
